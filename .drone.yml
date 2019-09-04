@@ -1,0 +1,45 @@
+---
+kind: pipeline
+type: docker
+name: landingpage
+
+steps:
+- name: deploy
+  image: appleboy/drone-scp
+  settings:
+    host:
+      from_secret: deploy_host
+    username:
+      from_secret: deploy_user
+    password:
+      from_secret: deploy_pass
+    port:
+      from_secret: deploy_port
+    target: /hp/ab/ag/lm/www/nolden/www
+    source: release.tar.gz
+    rm: true
+  when:
+    branch:
+    - master
+    event:
+    - push
+    - pull_request
+
+- name: slack
+  image: plugins/slack
+  settings:
+    webhook:
+      from_secret: slack_webhook
+    channel:
+      from_secret: slack_channel
+    template: >
+      {{#success build.status}}
+        {{repo.name}} build {{build.number}} succeeded. Good job.
+      {{else}}
+        {{repo.name}} build {{build.number}} failed. Fix me please.
+      {{/success}}
+  when:
+    status:
+    - success
+    - failure
+  
