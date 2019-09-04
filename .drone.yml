@@ -16,7 +16,7 @@ steps:
     port:
       from_secret: deploy_port
     target: /hp/ab/ag/lm/www/nolden/www
-    source: *
+    source: ./*
     rm: true
   when:
     branch:
